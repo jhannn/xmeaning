@@ -9,7 +9,7 @@ class Document extends NeoEloquent
 	protected $label = 'document';
 
 	protected $fillable = [
-		'id', 'title', 'date', 'temporary', 'agenda', 'attendees', 'reports', 'referrals', 'discussion', 'abstract',
+		'title', 'date', 'temporary', 'agenda', 'attendees', 'reports', 'referrals', 'discussion', 'abstract',
 		'introduction', 'conclusion', 'authors'
 	];
 
