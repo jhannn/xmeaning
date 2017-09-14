@@ -32,7 +32,7 @@ return [
     */
 
     'connections' => [
-
+/*
         'mysql' => [
             'driver' => 'mysql',
             'connectionLimit' => 100,
@@ -48,7 +48,7 @@ return [
             'strict' => true,
             'engine' => null,
         ],
-
+*/
         'neo4j' => [
             'driver' => 'neo4j',
             'host'   => env('NEO4J_HOST', 'localhost'),
