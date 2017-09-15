@@ -14,21 +14,15 @@ Use App\Document;
 |
 */
 
-Route::middleware('auth:api')->get('/user', function (Request $request) {
-	return $request->user();
-});
-
-Route::get('/api/v1/documento/{documentId}.pdf', function () {
-	// If the Content-Type and Accept headers are set to 'application/json',
-	// this will return a JSON structure. This will be cleaned up later.
-	return Document::find($id);
-});
-
-Route::post('/api/v1/documento/{documentId}', function (Request $request) {
-	$document = Document::findOrFail($id);
-	return Document::create($request->all);
-});
-
-Route::post('/api/v1/documento', function (Request $request) {
-	return Document::create($request->all);
+Route::group([
+	'prefix' => 'v1',
+	'as' => 'api::v1::'
+], function () {
+	Route::group([
+		'prefix' => 'documento',
+		'as' => 'document::'
+	], function () {
+		Route::post('', 'DocumentController@create');
+		Route::get('{id}.pdf', 'DocumentController@pdf');
+	});
 });
