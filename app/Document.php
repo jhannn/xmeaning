@@ -13,6 +13,11 @@ class Document extends \NeoEloquent
 
 	public function type()
 	{
-		return $this->hasOne('hasType');
+		return $this->hasOne('\App\Cls', 'hasType');
+	}
+
+	public function tags()
+	{
+		return $this->hasMany('\App\Tag', 'has');
 	}
 }

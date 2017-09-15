@@ -2,10 +2,16 @@
 
 namespace App\Http\Controllers;
 
+use App\Cls;
 use App\Document;
+use App\Extractors;
+use App\Tag;
+use App\Tools\Holos;
+use App\Tools\PdfExtractor;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
+use function PHPSTORM_META\map;
 
 class DocumentController extends Controller
 {
@@ -16,12 +22,15 @@ class DocumentController extends Controller
 	 */
 	public function create(Request $request)
 	{
-		if ($request->input('type') == 'holos')
+		if (($type = $request->input('type')) == 'holos')
 		{
 			$file = $request->input('file');
 			if (preg_match(self::$holosRegex, $file, $match))
 			{
 				$holosId = $match[2];
+				$info = Holos::document($holosId);
+				$textToAnalyse = $info['abstract'];
+				$tags = [];
 			}
 			else
 			{
@@ -33,18 +42,99 @@ class DocumentController extends Controller
 		else
 		{
 			$file = $request->file('file');
-			$ext = pathinfo($file, PATHINFO_EXTENSION);
+			$ext = pathinfo($file->getClientOriginalName(), PATHINFO_EXTENSION);
 			if ($ext != 'pdf')
 			{
 				return response()->json([
 					'message' => 'O arquivo enviado deve ser um PDF.'
 				], Response::HTTP_BAD_REQUEST);
 			}
+
+			$info = PdfExtractor::extract($type, $file->getPathName());
+			$textToAnalyse = join("\n", array_map(function ($el) {
+				return $el['text'];
+			}, $info['all']));
+			$tags = Extractors\XMeaning::extract($textToAnalyse);
 		}
 
-		$tags = [];
 		$tagsCache = [];
-		$textToAnalyze = '';
+		foreach ($tags as $tag)
+		{
+			$tagsCache[mb_strtolower($tag['text'])] = $tag;
+		}
+
+		if (count($tags) < 10)
+		{
+			$dandelionTags = Extractors\Dandelion::request($textToAnalyse);
+			foreach ($dandelionTags['annotations'] as $tag)
+			{
+				if (!isset($tagsCache[$tag['text']]))
+				{
+					array_push($tags, $tag);
+					$tagsCache[mb_strtolower($tag['text'])] = $tag;
+				}
+				if (count($tags) >= 10)
+					break;
+			}
+		}
+
+		$persistedTags = Tag::where('toLower(tag.name)', 'in', array_keys($tagsCache))->get();
+		$persistedTagsCache = [];
+		$tagsInstance = [];
+		foreach ($persistedTags as $pt)
+		{
+			$persistedTagsCache[mb_strtolower($pt->name)] = $pt;
+			$tagsInstance[] = $pt;
+		}
+		foreach ($tags as $tag)
+		{
+			$t = mb_strtolower($tag['text']);
+			if (!isset($persistedTagsCache[$t]))
+			{
+				$tagsInstance[] = Tag::create([
+					'name' => $tag['text']
+				]);
+			}
+		}
+
+		switch ($type)
+		{
+			case 'minute':
+				$docData = [
+					'title' => $info['title']['text'],
+					'date' => $info['date']['text'],
+					'agenda' => join("\n", array_map(function ($el) {
+						return $el['textObject']['text'];
+					}, $info['agenda'])),
+					'discussion' => join("\n", array_map(function ($el) {
+						return $el['text'];
+					}, $info['discussion'])),
+					'referrals' => join("\n", array_map(function ($el) {
+						return $el['textObject']['text'];
+					}, $info['referrals'])),
+					'reports' => join("\n", array_map(function ($el) {
+						return $el['textObject']['text'];
+					}, $info['reports']))
+				];
+				$document = Document::createWith($docData, [
+					'type' => Cls::minute(),
+					'tags' => $tagsInstance
+				]);
+				break;
+			case 'holos':
+			case 'article':
+				$document = Document::createWith([
+					'title' => $info['title'],
+					'date' => $info['date'],
+					'abstract' => $info['abstract'],
+					'introduction' => $info['introduction'],
+					'conclusion' => $info['conclusion']
+				], [
+					'type' => Cls::article(),
+					'tags' => $tagsInstance
+				]);
+				break;
+		}
 
 		return [
 			'ok' => true

@@ -1,8 +1,8 @@
 <?php
 
-namespace Tests\Tools;
+namespace Tests\Extractors;
 
-use App\Tools\Dandelion;
+use App\Extractors\Dandelion;
 use Tests\TestCase;
 
 define('SENTENSE', 'The Mona Lisa is a 16th century oil painting created by Leonardo. It\'s held at the Louvre in Paris.');
