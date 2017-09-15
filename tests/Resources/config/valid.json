@@ -1,0 +1,32 @@
+{
+  "dandelion": {
+    "token": "1"
+  },
+  "mysql": {
+    "connectionLimit": 2,
+    "host": "3",
+    "user": "4",
+    "password": "5",
+    "database": "6"
+  },
+  "upload": {
+    "tmpDocuments": {
+      "filesPerDirectory": 8
+    },
+    "documents": {
+      "filesPerDirectory": 10
+    }
+  },
+  "neo4j": {
+    "host": "11.1",
+    "user": "11.2",
+    "password": "12"
+  },
+  "http": {
+    "port": 13
+  },
+  "default": {
+    "local": 14,
+    "organization": 15
+  }
+}
