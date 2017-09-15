@@ -23,6 +23,7 @@ Route::group([
 		'as' => 'document::'
 	], function () {
 		Route::post('', 'DocumentController@create');
+		Route::put('{id}', 'DocumentController@update');
 		Route::get('{id}.pdf', 'DocumentController@pdf');
 	});
 });

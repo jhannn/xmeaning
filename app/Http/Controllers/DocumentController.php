@@ -87,24 +87,9 @@ class DocumentController extends Controller
 			}
 		}
 
-		$persistedTags = Tag::where('toLower(tag.name)', 'in', array_keys($tagsCache))->get();
-		$persistedTagsCache = [];
-		$tagsInstance = [];
-		foreach ($persistedTags as $pt)
-		{
-			$persistedTagsCache[mb_strtolower($pt->name)] = $pt;
-			$tagsInstance[] = $pt;
-		}
-		foreach ($tags as $tag)
-		{
-			$t = mb_strtolower($tag['text']);
-			if (!isset($persistedTagsCache[$t]))
-			{
-				$tagsInstance[] = Tag::create([
-					'name' => $tag['text']
-				]);
-			}
-		}
+		$tagsInstances = Tag::tags(array_map(function ($tag) {
+			return mb_strtolower($tag['text']);
+		}, $tags));
 
 		switch ($type)
 		{
@@ -127,7 +112,7 @@ class DocumentController extends Controller
 				];
 				$document = Document::createWith($docData, [
 					'type' => Cls::minute(),
-					'tags' => $tagsInstance
+					'tags' => $tagsInstances
 				]);
 				$file->storeAs(join(DIRECTORY_SEPARATOR, [floor($document->id / 5000)]), $document->id . '.pdf', 'pdfs');
 				break;
@@ -142,7 +127,7 @@ class DocumentController extends Controller
 					'conclusion' => $info['conclusion']
 				], [
 					'type' => Cls::article(),
-					'tags' => $tagsInstance
+					'tags' => $tagsInstances
 				]);
 				Storage::disk('pdfs')->putFileAs(floor($document->id / 5000), new File($info['pdfTmp']), $document->id . '.pdf');
 				break;
@@ -150,7 +135,8 @@ class DocumentController extends Controller
 
 
 		return [
-			'ok' => true
+			'ok' => true,
+			'id' => $document->id
 		];
 	}
 
@@ -159,9 +145,32 @@ class DocumentController extends Controller
 	 *
 	 * @param null $id
 	 */
-	public function update($id)
+	public function update(Request $request, $id)
 	{
-		//
+		$document = Document::find($id);
+		if ($document instanceof Document)
+		{
+			$document->title = $request->input('title');
+			$document->date = $request->input('date');
+
+			foreach ($document->tags as $tag)
+				$document->tags()->detach($tag);
+
+			$tags = Tag::tags($request->input('tag'));
+			var_dump(count($tags));
+			foreach ($tags as $tag)
+				$document->tags()->attach($tag);
+
+			return response()->json([
+				'ok' => true
+			]);
+		}
+		else
+		{
+			return response()->json([
+				'notFound' => true
+			], 404);
+		}
 	}
 
 	public function pdf($id)
