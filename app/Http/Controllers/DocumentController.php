@@ -29,6 +29,9 @@ class DocumentController extends Controller
 			{
 				$holosId = $match[2];
 				$info = Holos::document($holosId);
+				$pdfInfo = PdfExtractor::extract('holos', $info['pdfTmp']);
+				$info['introduction'] = join("\n", array_map(function ($el) { return $el['text']; }, $pdfInfo['introduction']));
+				$info['conclusion'] = join("\n", array_map(function ($el) { return $el['text']; }, $pdfInfo['conclusion']));
 				$textToAnalyse = $info['abstract'];
 				$tags = [];
 			}
@@ -123,6 +126,7 @@ class DocumentController extends Controller
 				break;
 			case 'holos':
 			case 'article':
+				var_dump($info);
 				$document = Document::createWith([
 					'title' => $info['title'],
 					'date' => $info['date'],
