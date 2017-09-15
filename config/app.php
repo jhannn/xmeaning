@@ -162,12 +162,13 @@ return [
 		Illuminate\Translation\TranslationServiceProvider::class,
 		Illuminate\Validation\ValidationServiceProvider::class,
 		Illuminate\View\ViewServiceProvider::class,
-		Vinelab\NeoEloquent\NeoEloquentServiceProvider::class,
 
 		/*
 		 * Package Service Providers...
 		 */
 		Laravel\Tinker\TinkerServiceProvider::class,
+		Vinelab\NeoEloquent\NeoEloquentServiceProvider::class,
+		Ixudra\Curl\CurlServiceProvider::class,
 
 		/*
 		 * Application Service Providers...
@@ -226,7 +227,7 @@ return [
 		'URL' => Illuminate\Support\Facades\URL::class,
 		'Validator' => Illuminate\Support\Facades\Validator::class,
 		'View' => Illuminate\Support\Facades\View::class,
-
+		'Curl' => Ixudra\Curl\Facades\Curl::class,
 	],
 
 ];
