@@ -8,9 +8,11 @@ use App\Extractors;
 use App\Tag;
 use App\Tools\Holos;
 use App\Tools\PdfExtractor;
+use Illuminate\Http\File;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use function PHPSTORM_META\map;
 
 class DocumentController extends Controller
@@ -30,8 +32,12 @@ class DocumentController extends Controller
 				$holosId = $match[2];
 				$info = Holos::document($holosId);
 				$pdfInfo = PdfExtractor::extract('holos', $info['pdfTmp']);
-				$info['introduction'] = join("\n", array_map(function ($el) { return $el['text']; }, $pdfInfo['introduction']));
-				$info['conclusion'] = join("\n", array_map(function ($el) { return $el['text']; }, $pdfInfo['conclusion']));
+				$info['introduction'] = join("\n", array_map(function ($el) {
+					return $el['text'];
+				}, $pdfInfo['introduction']));
+				$info['conclusion'] = join("\n", array_map(function ($el) {
+					return $el['text'];
+				}, $pdfInfo['conclusion']));
 				$textToAnalyse = $info['abstract'];
 				$tags = [];
 			}
@@ -123,6 +129,7 @@ class DocumentController extends Controller
 					'type' => Cls::minute(),
 					'tags' => $tagsInstance
 				]);
+				$file->storeAs(join(DIRECTORY_SEPARATOR, [floor($document->id / 5000)]), $document->id . '.pdf', 'pdfs');
 				break;
 			case 'holos':
 			case 'article':
@@ -137,8 +144,10 @@ class DocumentController extends Controller
 					'type' => Cls::article(),
 					'tags' => $tagsInstance
 				]);
+				Storage::disk('pdfs')->putFileAs(floor($document->id / 5000), new File($info['pdfTmp']), $document->id . '.pdf');
 				break;
 		}
+
 
 		return [
 			'ok' => true
