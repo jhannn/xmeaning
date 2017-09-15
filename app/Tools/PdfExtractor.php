@@ -5,14 +5,6 @@ namespace App\Tools;
 
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
 
-class PdfExtractorException extends \Exception
-{
-	public function __construct($message, $code)
-	{
-		parent::__construct("${message}. CÓDIGO: ${code}.");
-	}
-}
-
 class PdfExtractor
 {
 	public static function jarPath()
