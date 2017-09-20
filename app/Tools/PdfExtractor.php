@@ -7,6 +7,12 @@ use Illuminate\Contracts\Filesystem\FileNotFoundException;
 
 class PdfExtractor
 {
+	protected static $datePatterns = [
+		'd/m/Y',
+		'd \\d\\e F \d\e Y',
+		'd \\d\\e M \d\e Y',
+	];
+
 	public static function jarPath()
 	{
 		$jar = env('PDFEXTRACTOR_JAR');
@@ -40,9 +46,21 @@ class PdfExtractor
 
 		if (($code = proc_close($proc)) == 0)
 		{
-			return json_decode($stdout, true);
+			$result = json_decode($stdout, true);
+			$result['date'] = self::parseDate($result['date']['text']);
+			return $result;
 		}
 		else
 			throw new PdfExtractorException($stderr, $code);
+	}
+
+	private static function parseDate($date)
+	{
+		foreach (self::$datePatterns as $pattern)
+		{
+			$dt = \DateTime::createFromFormat($pattern, $date);
+			if ($dt !== false)
+				return $dt->format('Y-m-d H:i:s');
+		}
 	}
 }

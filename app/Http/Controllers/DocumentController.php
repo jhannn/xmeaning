@@ -11,9 +11,7 @@ use App\Tools\PdfExtractor;
 use Illuminate\Http\File;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
-use function PHPSTORM_META\map;
 
 class DocumentController extends Controller
 {
@@ -118,7 +116,6 @@ class DocumentController extends Controller
 				break;
 			case 'holos':
 			case 'article':
-				var_dump($info);
 				$document = Document::createWith([
 					'title' => $info['title'],
 					'date' => $info['date'],
@@ -157,7 +154,6 @@ class DocumentController extends Controller
 				$document->tags()->detach($tag);
 
 			$tags = Tag::tags($request->input('tag'));
-			var_dump(count($tags));
 			foreach ($tags as $tag)
 				$document->tags()->attach($tag);
 

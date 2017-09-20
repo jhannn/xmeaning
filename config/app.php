@@ -90,7 +90,7 @@ return [
 	|
 	*/
 
-	'fallback_locale' => 'en',
+	'fallback_locale' => 'pt_BR',
 
 	/*
 	|--------------------------------------------------------------------------
@@ -178,6 +178,7 @@ return [
 		// App\Providers\BroadcastServiceProvider::class,
 		App\Providers\EventServiceProvider::class,
 		App\Providers\RouteServiceProvider::class,
+		Cviebrock\LaravelElasticsearch\ServiceProvider::class,
 
 	],
 
@@ -228,6 +229,7 @@ return [
 		'Validator' => Illuminate\Support\Facades\Validator::class,
 		'View' => Illuminate\Support\Facades\View::class,
 		'Curl' => Ixudra\Curl\Facades\Curl::class,
+		'Elasticsearch' => Cviebrock\LaravelElasticsearch\Facade::class,
 	],
 
 ];

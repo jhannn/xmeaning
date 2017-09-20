@@ -29,7 +29,6 @@ class Tag extends NeoEloquent
 			$t = mb_strtolower($tag);
 			if (!isset($persistedTagsCache[$t]))
 			{
-				var_dump($t);
 				$tagsInstance[] = Tag::create([
 					'name' => $tag
 				]);
