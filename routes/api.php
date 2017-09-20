@@ -26,4 +26,11 @@ Route::group([
 		Route::put('{id}', 'DocumentController@update');
 		Route::get('{id}.pdf', 'DocumentController@pdf');
 	});
+
+	Route::group([
+		'prefix' => 'busca',
+		'as' => 'document::'
+	], function () {
+		Route::get('', 'SearchController@search');
+	});
 });
