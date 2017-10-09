@@ -16,21 +16,16 @@ Use App\Document;
 
 Route::group([
 	'prefix' => 'v1',
-	'as' => 'api::v1::'
+	'as' => 'api::v1::',
+	'middleware' => 'OpenCors'
 ], function () {
 	Route::group([
 		'prefix' => 'documento',
 		'as' => 'document::'
 	], function () {
+		Route::get('', 'SearchController@search');
 		Route::post('', 'DocumentController@create');
 		Route::put('{id}', 'DocumentController@update');
 		Route::get('{id}.pdf', 'DocumentController@pdf');
-	});
-
-	Route::group([
-		'prefix' => 'busca',
-		'as' => 'document::'
-	], function () {
-		Route::get('', 'SearchController@search');
 	});
 });

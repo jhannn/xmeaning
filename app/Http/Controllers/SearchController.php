@@ -20,14 +20,14 @@ class SearchController
 
 		if (!empty($page))
 		{
-			$qry["from"] = intval($page);
-			$qry["size"] = 20;
+			$body["from"] = (intval($page) - 1)*20;
+			$body["size"] = 20;
 		}
 
 		if (!empty($query))
 		{
 			$qry['match'] = [
-				"_all" => [
+				'_all' => [
 					'query' => $query,
 					'cutoff_frequency' => 0.001
 				],
@@ -44,13 +44,13 @@ class SearchController
 					];
 				}, $tags),
 			];
-			$body['aggs']['tags'] = [
-				'terms' => [
-					'field' => 'tags',
-					'size' => 10
-				]
-			];
 		}
+		$body['aggs']['tags'] = [
+			'terms' => [
+				'field' => 'tags',
+				'size' => 10
+			]
+		];
 		if (empty($qry))
 		{
 			$qry['match_all'] = new \stdClass();

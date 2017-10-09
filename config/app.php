@@ -230,6 +230,7 @@ return [
 		'View' => Illuminate\Support\Facades\View::class,
 		'Curl' => Ixudra\Curl\Facades\Curl::class,
 		'Elasticsearch' => Cviebrock\LaravelElasticsearch\Facade::class,
+		'OpenCors' => \App\Http\Middleware\OpenCors::class,
 	],
 
 ];

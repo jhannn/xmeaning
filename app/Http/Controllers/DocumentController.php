@@ -92,9 +92,13 @@ class DocumentController extends Controller
 		switch ($type)
 		{
 			case 'minute':
+				$date = $info['date']['text'];
+				if (empty($date))
+					$date = null;
 				$docData = [
+					'type' => 'minute',
 					'title' => $info['title']['text'],
-					'date' => $info['date']['text'],
+					'date' => $date,
 					'agenda' => join("\n", array_map(function ($el) {
 						return $el['textObject']['text'];
 					}, $info['agenda'])),
@@ -116,9 +120,16 @@ class DocumentController extends Controller
 				break;
 			case 'holos':
 			case 'article':
+				$date = $info['date'];
+				if (empty($date))
+					$date = null;
+				else {
+					$info['date'] .= ' 00:00:00';
+				}
 				$document = Document::createWith([
+					'type' => 'article',
 					'title' => $info['title'],
-					'date' => $info['date'],
+					'date' => $date,
 					'abstract' => $info['abstract'],
 					'introduction' => $info['introduction'],
 					'conclusion' => $info['conclusion']
@@ -130,9 +141,9 @@ class DocumentController extends Controller
 				break;
 		}
 
-
 		return [
 			'ok' => true,
+			'document' => $document['attributes'],
 			'id' => $document->id
 		];
 	}
